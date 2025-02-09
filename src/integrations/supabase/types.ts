@@ -9,7 +9,139 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          business_type: string | null
+          company_name: string
+          created_at: string | null
+          id: string
+          tax_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          business_type?: string | null
+          company_name: string
+          created_at?: string | null
+          id?: string
+          tax_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          business_type?: string | null
+          company_name?: string
+          created_at?: string | null
+          id?: string
+          tax_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tax_calculations: {
+        Row: {
+          calculation_details: Json | null
+          calculation_type: string | null
+          created_at: string | null
+          id: string
+          period_end: string
+          period_start: string
+          profile_id: string | null
+          status: string | null
+          submission_date: string | null
+          tax_payable: number
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          calculation_details?: Json | null
+          calculation_type?: string | null
+          created_at?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          profile_id?: string | null
+          status?: string | null
+          submission_date?: string | null
+          tax_payable: number
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          calculation_details?: Json | null
+          calculation_type?: string | null
+          created_at?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          profile_id?: string | null
+          status?: string | null
+          submission_date?: string | null
+          tax_payable?: number
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_calculations_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          amount_ngn: number | null
+          category: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          exchange_rate: number | null
+          id: string
+          mono_transaction_id: string | null
+          profile_id: string | null
+          transaction_date: string
+        }
+        Insert: {
+          amount: number
+          amount_ngn?: number | null
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          exchange_rate?: number | null
+          id?: string
+          mono_transaction_id?: string | null
+          profile_id?: string | null
+          transaction_date: string
+        }
+        Update: {
+          amount?: number
+          amount_ngn?: number | null
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          exchange_rate?: number | null
+          id?: string
+          mono_transaction_id?: string | null
+          profile_id?: string | null
+          transaction_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
