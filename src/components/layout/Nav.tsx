@@ -1,10 +1,13 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, BarChart2, FileText, Settings, Calculator } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, BarChart2, FileText, Settings, Calculator, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
     { name: "Dashboard", icon: BarChart2, path: "/" },
@@ -12,6 +15,17 @@ export const Nav = () => {
     { name: "Calculator", icon: Calculator, path: "/calculator" },
     { name: "Settings", icon: Settings, path: "/settings" },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success("Signed out successfully");
+      navigate("/auth");
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <nav className="bg-white border-b border-gray-200">
@@ -35,6 +49,13 @@ export const Nav = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
+            <button
+              onClick={handleSignOut}
+              className="flex items-center space-x-2 text-accent-dark hover:text-primary transition-colors duration-200"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Sign Out</span>
+            </button>
           </div>
 
           {/* Mobile Navigation Button */}
@@ -63,6 +84,16 @@ export const Nav = () => {
                   <span>{item.name}</span>
                 </Link>
               ))}
+              <button
+                onClick={() => {
+                  handleSignOut();
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center space-x-2 px-4 py-3 text-accent-dark hover:bg-secondary hover:text-primary transition-colors duration-200"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Sign Out</span>
+              </button>
             </div>
           </div>
         )}
