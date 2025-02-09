@@ -8,6 +8,14 @@ interface MonoConnectWidgetProps {
   onSuccess?: () => void;
 }
 
+interface MonoData {
+  getAccountId: () => string;
+  getAccountName: () => string;
+  getAccountNumber: () => string;
+  getBankName: () => string;
+  code: string;
+}
+
 export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   const { toast } = useToast();
   const monoConnectRef = useRef<any>(null);
@@ -23,9 +31,13 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
     };
   }, []);
 
-  const handleSuccess = async (data: any) => {
+  const handleSuccess = async (data: MonoData) => {
     try {
-      const { code } = data;
+      // Get the current user's ID
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error("No authenticated user found");
+
       // Generate a secure webhook secret for this account
       const webhookSecret = crypto.randomUUID();
       
@@ -38,6 +50,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
           account_number: data.getAccountNumber(),
           bank_name: data.getBankName(),
           webhook_secret: webhookSecret,
+          user_id: user.id,
         });
 
       if (error) throw error;
@@ -59,7 +72,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   const setupMonoConnect = () => {
     if (window.MonoConnect) {
       const monoInstance = new window.MonoConnect({
-        key: process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY || "", // This should come from an environment variable
+        key: process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY || "",
         onSuccess: handleSuccess,
         onClose: () => console.log("Widget closed"),
       });
