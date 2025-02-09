@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bank_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          created_at: string
+          id: string
+          mono_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          mono_account_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          mono_account_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           business_type: string | null
@@ -96,43 +129,53 @@ export type Database = {
         Row: {
           amount: number
           amount_ngn: number | null
+          bank_account_id: string | null
           category: string | null
           created_at: string | null
           currency: string | null
           description: string | null
           exchange_rate: number | null
           id: string
-          mono_transaction_id: string | null
+          mono_transaction_id: string
           profile_id: string | null
           transaction_date: string
         }
         Insert: {
           amount: number
           amount_ngn?: number | null
+          bank_account_id?: string | null
           category?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
           exchange_rate?: number | null
           id?: string
-          mono_transaction_id?: string | null
+          mono_transaction_id: string
           profile_id?: string | null
           transaction_date: string
         }
         Update: {
           amount?: number
           amount_ngn?: number | null
+          bank_account_id?: string | null
           category?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
           exchange_rate?: number | null
           id?: string
-          mono_transaction_id?: string | null
+          mono_transaction_id?: string
           profile_id?: string | null
           transaction_date?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "transactions_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transactions_profile_id_fkey"
             columns: ["profile_id"]

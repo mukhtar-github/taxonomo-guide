@@ -1,7 +1,10 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { MonoConnectWidget } from "@/components/bank/MonoConnectWidget";
 import { Card } from "@/components/ui/card";
 import { BarChart2, TrendingUp, AlertCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const stats = [
@@ -27,6 +30,18 @@ const Index = () => {
       trend: "neutral",
     },
   ];
+
+  const { data: bankAccounts, refetch: refetchBankAccounts } = useQuery({
+    queryKey: ["bankAccounts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_accounts")
+        .select("*");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <DashboardLayout>
@@ -58,6 +73,37 @@ const Index = () => {
             </Card>
           ))}
         </div>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-accent-dark">
+              Bank Accounts
+            </h2>
+            <MonoConnectWidget onSuccess={refetchBankAccounts} />
+          </div>
+          
+          {bankAccounts?.length === 0 ? (
+            <p className="text-accent-light">
+              No bank accounts linked yet. Link your first bank account to start tracking transactions.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {bankAccounts?.map((account) => (
+                <div
+                  key={account.id}
+                  className="p-4 border rounded-lg flex items-center justify-between"
+                >
+                  <div>
+                    <p className="font-medium">{account.account_name}</p>
+                    <p className="text-sm text-accent-light">
+                      {account.bank_name} - {account.account_number}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
 
         <Card className="p-6">
           <h2 className="text-xl font-semibold text-accent-dark mb-4">
