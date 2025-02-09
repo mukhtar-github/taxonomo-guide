@@ -26,8 +26,22 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   const handleSuccess = async (data: any) => {
     try {
       const { code } = data;
-      // Here we'll need to call our backend to handle the Mono auth code
-      // and fetch account details
+      // Generate a secure webhook secret for this account
+      const webhookSecret = crypto.randomUUID();
+      
+      // Here we store the account info along with the webhook secret
+      const { error } = await supabase
+        .from('bank_accounts')
+        .insert({
+          mono_account_id: data.getAccountId(),
+          account_name: data.getAccountName(),
+          account_number: data.getAccountNumber(),
+          bank_name: data.getBankName(),
+          webhook_secret: webhookSecret,
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Bank account linked successfully!",
         description: "Your transactions will be synced shortly.",
@@ -45,7 +59,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   const setupMonoConnect = () => {
     if (window.MonoConnect) {
       const monoInstance = new window.MonoConnect({
-        key: "YOUR_MONO_PUBLIC_KEY", // This should come from an environment variable
+        key: process.env.NEXT_PUBLIC_MONO_PUBLIC_KEY || "", // This should come from an environment variable
         onSuccess: handleSuccess,
         onClose: () => console.log("Widget closed"),
       });

@@ -19,6 +19,7 @@ export type Database = {
           mono_account_id: string
           updated_at: string
           user_id: string
+          webhook_secret: string | null
         }
         Insert: {
           account_name: string
@@ -29,6 +30,7 @@ export type Database = {
           mono_account_id: string
           updated_at?: string
           user_id: string
+          webhook_secret?: string | null
         }
         Update: {
           account_name?: string
@@ -39,6 +41,7 @@ export type Database = {
           mono_account_id?: string
           updated_at?: string
           user_id?: string
+          webhook_secret?: string | null
         }
         Relationships: []
       }
