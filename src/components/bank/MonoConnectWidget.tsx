@@ -26,6 +26,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
     script.async = true;
     document.body.appendChild(script);
 
+    // Clean up script on unmount
     return () => {
       document.body.removeChild(script);
     };
@@ -41,7 +42,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
       // Generate a secure webhook secret for this account
       const webhookSecret = crypto.randomUUID();
       
-      // Here we store the account info along with the webhook secret
+      // Store the account info along with the webhook secret
       const { error } = await supabase
         .from('bank_accounts')
         .insert({
