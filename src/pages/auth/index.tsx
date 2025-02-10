@@ -46,6 +46,13 @@ export default function AuthPage() {
           email,
           password,
         });
+        
+        if (authResponse.error) {
+          throw authResponse.error;
+        }
+        
+        toast.success("Account created! Please check your email to confirm your account.");
+        return;
       } else {
         authResponse = await supabase.auth.signInWithPassword({
           email,
@@ -54,6 +61,11 @@ export default function AuthPage() {
       }
 
       if (authResponse.error) {
+        // Handle email not confirmed error specifically
+        if (authResponse.error.message === "Email not confirmed") {
+          toast.error("Please confirm your email address before signing in. Check your inbox for the confirmation link.");
+          return;
+        }
         throw authResponse.error;
       }
 
