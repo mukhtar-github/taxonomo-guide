@@ -73,7 +73,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   const setupMonoConnect = () => {
     if (window.MonoConnect) {
       const monoInstance = new window.MonoConnect({
-        key: "live_pk_q8wDKGKbN8rdbxvgCVd5", // This is just an example
+        key: "test_pk_dtwil4ti4e0x420nk7k1", // Updated with your correct public key
         onSuccess: handleSuccess,
         onClose: () => console.log("Widget closed"),
       });
