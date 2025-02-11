@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface MonoConnectWidgetProps {
   onSuccess?: () => void;
@@ -19,6 +19,7 @@ interface MonoData {
 export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   const { toast } = useToast();
   const monoConnectRef = useRef<any>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   const handleSuccess = async (data: MonoData) => {
     try {
@@ -69,25 +70,20 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   };
 
   useEffect(() => {
+    // Check if script is already loaded
+    if (document.querySelector('script[src="https://connect.mono.co/connect.js"]')) {
+      setIsScriptLoaded(true);
+      return;
+    }
+
     // Load Mono Connect script
     const script = document.createElement("script");
     script.src = "https://connect.mono.co/connect.js";
     script.async = true;
-    document.body.appendChild(script);
 
     script.onload = () => {
       console.log("Mono Connect script loaded");
-      if (window.MonoConnect) {
-        const monoInstance = new window.MonoConnect({
-          key: "test_pk_dtwil4ti4e0x420nk7k1",
-          onSuccess: handleSuccess,
-          onClose: () => console.log("Widget closed"),
-        });
-        monoConnectRef.current = monoInstance;
-        console.log("Mono instance initialized");
-      } else {
-        console.error("MonoConnect not found in window object");
-      }
+      setIsScriptLoaded(true);
     };
 
     script.onerror = () => {
@@ -99,6 +95,8 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
       });
     };
 
+    document.body.appendChild(script);
+
     // Clean up script on unmount
     return () => {
       document.body.removeChild(script);
@@ -106,14 +104,27 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
   }, []);
 
   const openMonoWidget = () => {
-    if (monoConnectRef.current) {
+    try {
+      if (!window.MonoConnect) {
+        throw new Error("Mono Connect not loaded");
+      }
+
+      if (!monoConnectRef.current) {
+        console.log("Initializing new Mono instance");
+        monoConnectRef.current = new window.MonoConnect({
+          key: "test_pk_dtwil4ti4e0x420nk7k1",
+          onSuccess: handleSuccess,
+          onClose: () => console.log("Widget closed"),
+        });
+      }
+
       console.log("Opening Mono widget");
       monoConnectRef.current.open();
-    } else {
-      console.error("Mono widget not initialized");
+    } catch (error) {
+      console.error("Error opening Mono widget:", error);
       toast({
         title: "Error",
-        description: "Bank connection widget is not ready. Please try again.",
+        description: "Could not open bank connection widget. Please try again.",
         variant: "destructive",
       });
     }
@@ -123,6 +134,7 @@ export const MonoConnectWidget = ({ onSuccess }: MonoConnectWidgetProps) => {
     <Button
       onClick={openMonoWidget}
       className="bg-primary hover:bg-primary/90"
+      disabled={!isScriptLoaded}
     >
       Link Bank Account
     </Button>
